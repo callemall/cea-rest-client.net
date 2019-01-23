@@ -1,4 +1,6 @@
-﻿namespace CEA.RestClient
+﻿using System.Collections.Generic;
+
+namespace CEA.RestClient
 {
     using Rest;
     using ApiModels;
@@ -33,13 +35,32 @@
             return client.GetSingleSignOnConversationUrl(conversation);
         }
 
+        /// <summary>
+        /// Get a single-sign-on URL for the Call-Em-All site's create broadcast page
+        /// with contacts passed in already populated on the page.
+        /// </summary>
+        /// <param name="client">The staging or production Call-Em-All rest client</param>
+        /// <param name="contacts">Contacts to be passed for the create broadcast page</param>
+        /// <returns>The URL that can be opened in an IFrame or browser window</returns>
+        public static string GetCreateBroadcastPageUrl(this RestClient client, List<Person> contacts)
+        {
+            var draftBroadcast = new DraftBroadcast
+            {
+                Contacts = contacts
+            };
+
+            var response = client.Post("/v1/draftbroadcasts", draftBroadcast);
+
+            return response?.SingleSignOnUrl;
+        }
+
         #region private functions
 
         private static string GetSingleSignOnConversationUrl(this RestClient client, Conversation conversation)
         {
             var response = client.Post<Conversation, SingleSignOnToken>("/v1/singlesignon/conversations", conversation);
 
-            return response?.Url;;
+            return response?.Url;
         }
 
         #endregion
