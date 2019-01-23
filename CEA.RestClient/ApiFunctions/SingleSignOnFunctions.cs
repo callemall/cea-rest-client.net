@@ -42,7 +42,7 @@ namespace CEA.RestClient
         /// <param name="client">The staging or production Call-Em-All rest client</param>
         /// <param name="contacts">Contacts to be passed for the create broadcast page</param>
         /// <returns>The URL that can be opened in an IFrame or browser window</returns>
-        public static string GetCreateBroadcastPageUrl(this RestClient client, List<Person> contacts)
+        public static string GetCreateBroadcastPageUrl(this RestClient client, List<Person> contacts = null)
         {
             var draftBroadcast = new DraftBroadcast
             {
