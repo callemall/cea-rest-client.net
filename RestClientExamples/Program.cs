@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using CEA.RestClient;
+using CEA.RestClient.ApiModels;
 
 namespace RestClientExamples
 {
@@ -9,7 +10,7 @@ namespace RestClientExamples
         private const string AppKey = ".....";   // please use your API keys provided by Call-Em-All
         private const string SecretKey = "..../";
 
-        // Example 1: Open the Call-Em-All conversation page in a browser
+        // Example: Send a voice broadcast using text to speech
         static void Main(string[] args)
         {
             var client = new StagingRestClient();
@@ -29,11 +30,27 @@ namespace RestClientExamples
 
                 client.SetOAuthAuthentication(AppKey, SecretKey, authToken);
 
-                // get single-sign-on URL for conversations
-                var urlToOpen = client.GetConversationsPageUrl();
+                // e.g. your own phone number
+                Console.Write($"Please enter a phone number to call: ");
+                var phoneNumber = Console.ReadLine();
 
-                // open browser (windows OS)
-                Process.Start(new ProcessStartInfo("cmd", $"/c start {urlToOpen}"));
+                // e.g. Hi everyone! This is my first test. Say 1 2 3 4 5 6 7 8 9 10. Goodbye! 
+                Console.Write($"Please enter a longer than 10 seconds text to speech message to play: ");
+                var textToSpeech = Console.ReadLine();
+
+                broadcast.Contacts = new List<Person>
+                {
+                    new Person { PrimaryPhone = phoneNumber }
+                };
+
+                broadcast.Audio = new Audio
+                {
+                    TextToSpeech = true,
+                    Text = textToSpeech
+                };
+
+                // get single-sign-on URL for conversations
+                var result = client.Post("/v1/broadcasts", broadcast);
             }
             catch (Exception exception)
             {
@@ -43,5 +60,12 @@ namespace RestClientExamples
             Console.WriteLine("Press any key to close...");
             Console.ReadKey();
         }
+
+        static readonly Broadcast broadcast = new Broadcast
+        {
+            BroadcastName = "Test broadcast",
+            BroadcastType = "Announcement",
+            PrimaryPhoneNumbersOnly = true,
+        };
     }
 }
