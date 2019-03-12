@@ -13,7 +13,7 @@ namespace RestClientExamples
         // Example: Send a voice broadcast using text to speech
         static void Main(string[] args)
         {
-            var client = new StagingRestClient();
+            var client = new StagingBetaRestClient();
 
             try
             {
