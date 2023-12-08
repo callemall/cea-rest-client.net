@@ -148,6 +148,60 @@ namespace CEA.RestClient.Rest
             }
         }
 
+        public Tout PostStream<Tout>(string uri, string contentType, byte[] dataStream)
+        {
+            var request = (HttpWebRequest)WebRequest.Create(UrlCompose(RestApiUrl, uri));
+
+            request.ContentType = contentType;
+            request.Method = HttpVerb.POST.ToString();
+
+            if (Timeout > 0) request.Timeout = Timeout;
+
+            _authentication.AddAuthentication(request);
+
+            if (dataStream != null)
+            {
+                using (var streamWriter = new BinaryWriter(request.GetRequestStream()))
+                {
+                    streamWriter.Write(dataStream);
+                }
+            }
+            else
+            {
+                request.ContentLength = 0;
+            }
+
+            using (var response = (HttpWebResponse)request.GetResponse())
+            {
+                // Grab the response, convert it into a class Tout object and return the object.
+                using (var responseStream = response.GetResponseStream())
+                {
+                    if (responseStream == null)
+                    {
+                        throw new Exception("Null response stream.");
+                    }
+
+                    var reader = new StreamReader(responseStream, Encoding.UTF8);
+
+                    var responseBody = reader.ReadToEnd();
+
+                    if (typeof(Tout) == typeof(string) || typeof(Tout) == typeof(string))
+                    {
+                        return (Tout)Convert.ChangeType(responseBody, typeof(Tout));
+                    }
+
+                    var responseObj = JsonConvert.DeserializeObject<Tout>(responseBody);
+
+                    if (responseObj.GetType().IsAssignableFrom(typeof(Tout)))
+                    {
+                        return responseObj;
+                    }
+
+                    throw new Exception("Response object's type is invalid.");
+                }
+            }
+        }
+
         private static string UrlCompose(string baseUri, string uri)
         {
             var baseUriObject = new Uri(baseUri);
