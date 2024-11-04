@@ -19,6 +19,9 @@
 
             // Example: Initiate Single-Sign-On
             SingleSignOnExamples.OpenSingleSignOnConversationsPage();
+
+            // Example: File upload
+            FileUploadExamples.UploadFile();
         }
     }
 }
